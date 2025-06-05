@@ -1,28 +1,29 @@
-'use client'
-import React, { useState, useDeferredValue } from 'react';
-
-const ExpensiveCalculationDisplay = ({ input }) => {
-  // Simulate heavy calculation
-  let t = 0;
-  for (let i = 0; i < 1e7; i++) { // Slightly smaller loop for example
-    t += i;
-  }
-  return <div>Result of expensive calculation: {t + input}</div>;
-};
+"use client";
+import React, { useState, useEffect } from "react";
 
 export default function Dashboard() {
-  const [inputValue, setInputValue] = useState(0);
-  const deferredInput = useDeferredValue(inputValue);
+  const [d, setD] = useState<number | null>(null);
 
-  return (
-    <div>
-      <input
-        type="number"
-        value={inputValue}
-        onChange={(e) => setInputValue(Number(e.target.value))}
-      />
-      {/* This component's re-render will be deferred if main thread is busy */}
-      <ExpensiveCalculationDisplay input={deferredInput} />
-    </div>
-  );
+  useEffect(() => {
+    const worker = new Worker(
+      new URL("./calculation.worker.js", import.meta.url)
+    );
+
+    worker.postMessage("startCalculation");
+
+    worker.onmessage = (e) => {
+      setD(e.data);
+      worker.terminate(); // Terminate the worker once done
+    };
+
+    worker.onerror = (error) => {
+      console.error("Worker error:", error);
+    };
+
+    return () => {
+      worker.terminate(); // Cleanup worker on component unmount
+    };
+  }, []);
+
+  return <div>{d}</div>;
 }

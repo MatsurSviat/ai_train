@@ -1,5 +1,9 @@
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
+## Project Metrics
+Here's an overview of our application's key metrics:
+![Application Metrics](public/metrics.png)
+
 ## Getting Started
 
 First, run the development server:
